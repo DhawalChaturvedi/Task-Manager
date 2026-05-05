@@ -1,0 +1,18 @@
+<ul class="list-group list-group-flush">
+  {% for membership in members %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>
+        {{ membership.user.username }}
+        <span class="badge bg-{% if membership.role == 'admin' %}primary{% else %}secondary{% endif %} ms-1">
+          {{ membership.role }}
+        </span>
+      </span>
+      {% if user_role == 'admin' and membership.user != request.user %}
+        <form method="post" action="{% url 'project_remove_member' object.pk membership.user.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+        </form>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>

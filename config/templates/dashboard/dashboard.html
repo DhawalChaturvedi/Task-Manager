@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Dashboard</h2>
+  <a href="{% url 'project_list' %}" class="btn btn-primary">My Projects</a>
+</div>
+
+<!-- Status counts -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <h1 class="display-5 fw-bold">{{ total }}</h1>
+        <p class="text-muted mb-0">Total Tasks</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm border-secondary">
+      <div class="card-body">
+        <h1 class="display-5 fw-bold text-secondary">{{ count_todo }}</h1>
+        <p class="text-muted mb-0">To Do</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm border-primary">
+      <div class="card-body">
+        <h1 class="display-5 fw-bold text-primary">{{ count_in_progress }}</h1>
+        <p class="text-muted mb-0">In Progress</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm border-success">
+      <div class="card-body">
+        <h1 class="display-5 fw-bold text-success">{{ count_done }}</h1>
+        <p class="text-muted mb-0">Done</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overdue tasks -->
+<div class="card shadow-sm">
+  <div class="card-header d-flex align-items-center gap-2">
+    <strong>Overdue Tasks</strong>
+    {% if overdue %}
+      <span class="badge bg-danger">{{ overdue|length }}</span>
+    {% endif %}
+  </div>
+  <div class="card-body p-0">
+    {% if overdue %}
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Task</th>
+            <th>Project</th>
+            <th>Priority</th>
+            <th>Due</th>
+            <th>Assigned To</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in overdue %}
+            <tr>
+              <td>
+                <a href="{% url 'project_detail' task.project.pk %}" class="text-decoration-none">
+                  {{ task.title }}
+                </a>
+              </td>
+              <td>{{ task.project.name }}</td>
+              <td>
+                <span class="badge
+                  {% if task.priority == 'high' %}bg-danger
+                  {% elif task.priority == 'medium' %}bg-warning text-dark
+                  {% else %}bg-secondary{% endif %}">
+                  {{ task.get_priority_display }}
+                </span>
+              </td>
+              <td class="text-danger fw-semibold">{{ task.due_date }}</td>
+              <td>{{ task.assigned_to.username|default:"—" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-muted p-3 mb-0">No overdue tasks.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

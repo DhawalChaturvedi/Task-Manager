@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ object.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h2>{{ object.name }}</h2>
+    <p class="text-muted">{{ object.description }}</p>
+  </div>
+  {% if user_role == 'admin' %}
+    <div class="d-flex gap-2">
+      <a href="{% url 'project_edit' object.pk %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+      <a href="{% url 'project_delete' object.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+    </div>
+  {% endif %}
+</div>
+
+<div class="row g-4">
+  <!-- Tasks column -->
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Tasks</strong>
+        <button class="btn btn-primary btn-sm"
+                hx-get="{% url 'task_create' object.pk %}"
+                hx-target="#task-form-container"
+                hx-swap="innerHTML">
+          + Add Task
+        </button>
+      </div>
+      <div class="card-body">
+        <div id="task-form-container"></div>
+        <div id="task-list">
+          {% include "tasks/task_list_partial.html" with tasks=tasks project=object is_admin=is_admin %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Members column -->
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-header"><strong>Members</strong></div>
+      <div id="member-list">
+        {% include "projects/member_list_partial.html" %}
+      </div>
+      {% if user_role == 'admin' %}
+        <div class="card-footer">
+          <form method="post" action="{% url 'project_add_member' object.pk %}">
+            {% csrf_token %}
+            {{ add_member_form|crispy }}
+            <button type="submit" class="btn btn-sm btn-outline-primary w-100 mt-1">Add Member</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

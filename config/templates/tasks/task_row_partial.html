@@ -1,0 +1,50 @@
+{% load tz %}
+<tr id="task-row-{{ task.pk }}">
+  <td>
+    {{ task.title }}
+    {% if task.overdue %}
+      <span class="badge bg-danger ms-1">Overdue</span>
+    {% endif %}
+  </td>
+  <td>
+    <span class="badge
+      {% if task.priority == 'high' %}bg-danger
+      {% elif task.priority == 'medium' %}bg-warning text-dark
+      {% else %}bg-secondary{% endif %}">
+      {{ task.get_priority_display }}
+    </span>
+  </td>
+  <td>{{ task.assigned_to.username|default:"—" }}</td>
+  <td>{{ task.due_date|default:"—" }}</td>
+  <td>
+    <button class="btn btn-sm
+      {% if task.status == 'todo' %}btn-outline-secondary
+      {% elif task.status == 'in_progress' %}btn-outline-primary
+      {% else %}btn-success{% endif %}"
+      hx-post="{% url 'task_status' project.pk %}"
+      hx-vals='{"task_pk": "{{ task.pk }}"}'
+      hx-target="#task-row-{{ task.pk }}"
+      hx-swap="outerHTML"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+      {{ task.get_status_display }}
+    </button>
+  </td>
+  {% if is_admin %}
+  <td>
+    <button class="btn btn-outline-secondary btn-sm"
+            hx-get="{% url 'task_edit' task.pk %}"
+            hx-target="#task-form-container"
+            hx-swap="innerHTML">Edit</button>
+    <form method="post" action="{% url 'task_delete' task.pk %}" class="d-inline"
+          hx-post="{% url 'task_delete' task.pk %}"
+          hx-target="#task-list"
+          hx-swap="innerHTML"
+          hx-confirm="Delete this task?">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-danger btn-sm">Del</button>
+    </form>
+  </td>
+  {% else %}
+  <td></td>
+  {% endif %}
+</tr>

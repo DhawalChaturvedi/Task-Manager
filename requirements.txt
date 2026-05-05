@@ -4,3 +4,4 @@ whitenoise
 django-crispy-forms
 crispy-bootstrap5
 python-dotenv
+gunicorn
